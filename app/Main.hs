@@ -284,29 +284,34 @@ trackToHtml outDir codec t = do
      fname = outDir </> trackFilename t <.> codecFileExtension codec
      audioId = takeFileName fname
 
-   H.h3 $ fromString (title meta  ++ " (" ++ show intend ++ ") - " ++ show (trackIndex t) )
    if (null voices)
-     then H.h3 $ fromString (title meta  ++ " (" ++ show intend ++ ") - " ++ show (trackIndex t) )
-     else do
+     then
+       H.h3 $ fromString (title meta  ++ " (" ++ show intend ++ ") - " ++ show (trackIndex t) )
+     else
        H.h3 $ do fromString $ intercalate ", " $ show <$> voices
-                 when (null instruments)  $ H.p $ H.strong  "A Cappella"
-       H.h4 $ fromString (title meta  ++ " (" ++ show intend ++ ") - " ++ show (trackIndex t) )
+                 when (null instruments) $ H.i  "A Cappella"
    H.div ! A.class_ "player" $
      do H.audio
           ! A.id (fromString audioId)
           ! A.src (fromString fname)
           ! A.controls ""
           $ "Your Browser cannot play this audio."
-        when (not (null instruments) && null voices)
-             (H.h4 "Instrumental")
-        unless (null instruments) $ H.div $ do
-          H.strong "Instruments:"
-          fromString (intercalate ", " ( show <$> instruments))
-        unless (null compositions) $ H.div $ do
-          H.strong "Arrangements:"
-          fromString (intercalate ", " ( show <$> compositions))
+        when (not (null voices)) $
+          H.h4 $ fromString (title meta  ++ " (" ++ show intend ++ ") - " ++ show (trackIndex t) )
+        when (not (null instruments) && null voices) $
+          H.h4 "Instrumental"
+        unless (null instruments) $
+          H.div $
+          do H.strong "Instruments:"
+             fromString (intercalate ", " ( show <$> instruments))
+        unless (null compositions) $
+          H.div $
+          do H.strong "Arrangements:"
+             fromString (intercalate ", " ( show <$> compositions))
         H.p ! A.class_ "download" $
-         H.a ! H.customAttribute "download" (fromString audioId) ! A.href (fromString fname) $ "Download"
+         H.a
+          ! H.customAttribute "download" (fromString audioId)
+          ! A.href (fromString fname) $ "Download"
 
 ensureNonOverlappingOutputFilenames :: [Cut] -> IO ()
 ensureNonOverlappingOutputFilenames cuts =
