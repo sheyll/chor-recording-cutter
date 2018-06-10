@@ -245,8 +245,12 @@ songToHtml outDir codec song =
                    (do H.h2 (fromString (case intend of
                                            Concert -> "Concert Recordings"
                                            Rehearsal -> "Complete Rehearsals"
-                                           Training -> "Incomplete Training Tracks"))
-                       sequence_ (trackToHtml outDir codec . outputTrack <$> tracksWithIntend)))))
+                                           Training -> "Training Tracks"))
+                       mapM_
+                         (\cut ->
+                            do trackToHtml outDir codec (outputTrack cut)
+                         )
+                         tracksWithIntend))))
 
 
 songHtmlFilename :: Song -> FilePath
@@ -281,24 +285,28 @@ trackToHtml outDir codec t = do
      audioId = takeFileName fname
 
    H.h3 $ fromString (title meta  ++ " (" ++ show intend ++ ") - " ++ show (trackIndex t) )
+   if (null voices)
+     then H.h3 $ fromString (title meta  ++ " (" ++ show intend ++ ") - " ++ show (trackIndex t) )
+     else do
+       H.h3 $ do fromString $ intercalate ", " $ show <$> voices
+                 when (null instruments)  $ H.p $ H.strong  "A Cappella"
+       H.h4 $ fromString (title meta  ++ " (" ++ show intend ++ ") - " ++ show (trackIndex t) )
    H.div ! A.class_ "player" $
      do H.audio
           ! A.id (fromString audioId)
           ! A.src (fromString fname)
           ! A.controls ""
-          $ "Your Browser cannot play this audio. Please install the latest firefox browser."
-        H.p ! A.class_ "download" $
-         H.a ! H.customAttribute "download" (fromString audioId) ! A.href (fromString fname) $ "Download (AAC)"
-        H.h4 "Track Contents"
-        unless (null voices) $ H.div $ do
-          H.strong "Voices:"
-          fromString (intercalate ", " ( show <$> voices))
+          $ "Your Browser cannot play this audio."
+        when (not (null instruments) && null voices)
+             (H.h4 "Instrumental")
         unless (null instruments) $ H.div $ do
           H.strong "Instruments:"
           fromString (intercalate ", " ( show <$> instruments))
         unless (null compositions) $ H.div $ do
           H.strong "Arrangements:"
           fromString (intercalate ", " ( show <$> compositions))
+        H.p ! A.class_ "download" $
+         H.a ! H.customAttribute "download" (fromString audioId) ! A.href (fromString fname) $ "Download"
 
 ensureNonOverlappingOutputFilenames :: [Cut] -> IO ()
 ensureNonOverlappingOutputFilenames cuts =
