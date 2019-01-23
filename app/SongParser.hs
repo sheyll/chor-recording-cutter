@@ -42,7 +42,7 @@ import           Song
 -- > **Singers For Peace**
 -- >
 --
--- A song is then started by the song title as level-2 title:
+-- A song is then started by the song title with a subtitle:
 --
 -- >
 -- > # Rainbow Songs (2021)
@@ -52,18 +52,23 @@ import           Song
 -- > ## Song of Friendship
 -- >
 --
--- A song consists of several clips. A clip has the following form:
--- It starts with a bold 'Intend' followed by comma seperated 'Voice' values
+-- A song consists of several clips. A clip has sources, main instruments (including vocals) and
+-- zero or more accompaniment instruments.
 --
+-- The 'Intend' may be varied  at any level using
+-- a heading or bold text at the corresponding level, containing a valid 'Intend' string.
+-- The default intend is 'Training'.
+--
+-- The Accompaniment can also be specified by a heading or bold text prefixed with the
+-- word @Accompaniment:@ (with capital @A@ and a colon). The scope of the definition is
+-- accordingly. The accompaniment can be reset using @Accompaniment: none@
 --
 -- >
 -- > # Rainbow Songs (2021)
 -- >
 -- > **Singers For Peace**
 -- >
--- > ## Song of Friendship
--- >
--- > **Training**
+-- > ## Song of Friendship (Training)
 -- >
 -- > ### Bar 10 - 22
 -- >
@@ -83,8 +88,12 @@ import           Song
 -- > 1. [ 2:25 - 03:59 ][1]
 -- >
 -- > ### Bar 10 - 22
+-- >
 -- > The above resets the level-4 title, also this text is ignored.
 -- >
+-- > - Vocals: Bass, Teacher  (Solo)
+-- > - Piano
+-- > 1. [ 2:25 - 03:59 ][1]
 
 
 
